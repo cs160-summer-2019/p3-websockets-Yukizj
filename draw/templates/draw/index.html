@@ -28,8 +28,58 @@
     // getting the URL (you may want to use for Exercise 3)
     var url = window.location.href;
 
-    // var socket = new WebSocket(
-    //     'wss://<your url here>/ws/draw');
+
+    // create a new websocket connecting to the server
+    var socket = new WebSocket('wss://p3-websockets-Yukizj-jiayuki937984.codeanyapp.com/ws/draw');
+
+  var broadcastPathIntervalID;
+  var processPathIntervalID;
+  
+  var receivedMessage;
+  var message;
+ 
+tool.minDistance = 10;
+
+var path;
+var colors=["red","blue","black"];
+function getColor(){
+  randomColor = colors[Math.floor(Math.random()*colors.length)];
+} 
+
+tool.onMouseDown = function(e) {
+    // Create a new path every time the mouse is clicked
+    path = new paper.Path();
+    path.add(e.point);
+    getColor();
+    path.strokeColor = randomColor;
+}
+
+tool.onMouseDrag = function(e) {
+    // Add a point to the path every time the mouse is dragged
+    path.add(e.point);
+//     socket.send(path.pathData+","+randomColor);s
+}
+
+tool.onMouseUp = function(e){
+//   use when sending a message to the server
+//   to be broadcasted to all clients, please add a delay
+  socket.send(path.pathData+";"+randomColor);
+}
+
+  // triggered when receiving a message from the server
+  socket.onmessage = function(receivedMessage) {
+    var vars=receivedMessage.data.split(";");
+    if(url.split("=")[1]=="large"){
+    path= new paper.Path(vars[0]);
+    path.strokeColor = vars[1];
+  }};
+
+    
+    // notify console if socket closes unexpectedly
+    socket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
 
 
 </script>
